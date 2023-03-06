@@ -87,3 +87,10 @@ button[type="submit"] {
   height: 100px;
   border-radius: 50%;
 }
+
+.choicebutton{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 10vh;
+}

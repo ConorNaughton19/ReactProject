@@ -1,11 +1,29 @@
+import { useState, useEffect } from "react";
 import { ResponsivePie } from "@nivo/pie";
 import { token } from "../theme";
 import { useTheme } from "@mui/material";
-import { mockPieData as data } from "../data/mockData";
+import {db} from "../config/fire";
+
+
 
 const PieChart = () => {
   const theme = useTheme();
   const colors = token(theme.palette.mode);
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    // Reference the "mockPieData" node in your database
+    const dbRef = db.ref("mockPieData");
+    // Fetch the data from your database and update the state
+    dbRef.on("value", (snapshot) => {
+      const pieData = snapshot.val();
+      setData(pieData);
+    });
+
+    // Clean up the event listener when the component unmounts
+    return () => dbRef.off();
+  }, []);
+
   return (
     <ResponsivePie
       data={data}

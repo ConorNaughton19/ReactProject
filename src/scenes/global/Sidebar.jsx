@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import "react-pro-sidebar/dist/css/styles.css";
 import { token } from "../../theme";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
@@ -96,13 +95,7 @@ const Sidebar = () => {
             >
               Data
             </Typography>
-            <Item
-              title="Contacts Information"
-              to="/contacts"
-              icon={<ContactsOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
+        
             <Typography
               variant="h6"
               color={colors.grey[300]}
@@ -141,6 +134,13 @@ const Sidebar = () => {
             <Item
               title="Line Chart"
               to="/line"
+              icon={<TimelineOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Bump-Area Chart"
+              to="/bump"
               icon={<TimelineOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
