@@ -1,12 +1,28 @@
 import { ResponsiveAreaBump } from "@nivo/bump";
 import { token } from "../theme";
 import { useTheme } from "@mui/material";
-import { mockAreaBumpData as data } from "../data/mockData";
+import { useState, useEffect } from "react";
+import {db} from "../config/fire";
 
 
 const BumpAreaChart = () => {
     const theme = useTheme();
     const colors = token(theme.palette.mode);
+    const [data, setData] = useState([]);
+
+    useEffect(() => {
+        // Reference the "mockPieData" node in your database
+        const dbRef = db.ref("mockAreaBumpData");
+        // Fetch the data from your database and update the state
+        dbRef.on("value", (snapshot) => {
+          const bumpData = snapshot.val();
+          setData(bumpData);
+        });
+    
+        // Clean up the event listener when the component unmounts
+        return () => dbRef.off();
+      }, []);
+
     return (
     <ResponsiveAreaBump
         data={data}

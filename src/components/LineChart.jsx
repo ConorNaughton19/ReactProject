@@ -1,11 +1,30 @@
 import { ResponsiveLine } from "@nivo/line";
 import { useTheme } from "@mui/material";
 import { token } from "../theme";
-import { mockLineData as data } from "../data/mockData";
+import {db} from "../config/fire";
+import { useState, useEffect } from "react";
 
-const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
+
+
+const LineChart = ({ isDashboard = false }) => {
   const theme = useTheme();
   const colors = token(theme.palette.mode);
+
+  const [data, setData] = useState([]);
+
+  
+  useEffect(() => {
+    const dbRef = db.ref("mockLineData");
+    // Fetch the data from your database and update the state
+    dbRef.on("value", (snapshot) => {
+      const lineData = snapshot.val();
+      setData(lineData);
+    });
+
+     // Clean up the event listener when the component unmounts
+     return () => dbRef.off();
+    }, []);
+
 
   return (
     <ResponsiveLine
@@ -62,7 +81,7 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
         tickSize: 0,
         tickPadding: 5,
         tickRotation: 0,
-        legend: isDashboard ? undefined : "Time", // added
+        legend: isDashboard ? false : "Time", // added
         legendOffset: 36,
         legendPosition: "middle",
       }}
@@ -72,7 +91,7 @@ const LineChart = ({ isCustomLineColors = false, isDashboard = false }) => {
         tickSize: 3,
         tickPadding: 5,
         tickRotation: 0,
-        legend: isDashboard ? undefined : "GLucose Reading in mmols", // added
+        legend: isDashboard ? false : "GLucose Reading in mmols", // added
         legendOffset: -40,
         legendPosition: "middle",
       }}

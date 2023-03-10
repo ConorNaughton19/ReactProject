@@ -2,7 +2,7 @@
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
-import 'firebase/database';
+import 'firebase/compat/database';
 
 var firebaseConfig = {
     apiKey: "AIzaSyAD1BbG_x1oR8LzhjcZioLaiEn4ULLpGc4",
@@ -15,5 +15,7 @@ var firebaseConfig = {
 };
 
 const fire = firebase.initializeApp(firebaseConfig)
+export const db = fire.database("https://final-year-project-datab-3d5d4-default-rtdb.europe-west1.firebasedatabase.app");
+export const auth = fire.auth();
 
 export default fire;
