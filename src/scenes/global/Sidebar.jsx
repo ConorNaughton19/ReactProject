@@ -1,15 +1,19 @@
-import { useState } from "react";
+import React, { useState, useContext } from 'react';
 import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
-import { Link } from "react-router-dom";
-import "react-pro-sidebar/dist/css/styles.css";
+import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../AuthContext";
 import { token } from "../../theme";
+import fire from "../../config/fire";
+import "react-pro-sidebar/dist/css/styles.css";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
 import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
 import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
 import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import SsidChartIcon from '@mui/icons-material/SsidChart';
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -34,6 +38,17 @@ const Sidebar = () => {
   const colors = token(theme.palette.mode);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
+  const { setUser, setError } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    fire.auth().signOut().then(() => {
+      setUser(null); // clear user from the AuthContext
+      navigate('/');
+    }).catch((error) => {
+      setError(error.message);
+    });
+  }
 
   return (
     <Box
@@ -70,7 +85,7 @@ const Sidebar = () => {
                 alignItems="center"
                 ml="15px"
               >
-                <Typography variant="h3" color={colors.grey[100]}>
+                <Typography variant="h3" color={colors.grey[900]}>
                   DiaHealth
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
@@ -83,7 +98,7 @@ const Sidebar = () => {
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
             <Item
               title="Dashboard"
-              to="/"
+              to="/dashboard"
               icon={<HomeOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
@@ -141,11 +156,15 @@ const Sidebar = () => {
             <Item
               title="Bump-Area Chart"
               to="/bump"
-              icon={<TimelineOutlinedIcon />}
+              icon={<SsidChartIcon />}
               selected={selected}
               setSelected={setSelected}
             />
-          </Box>
+             {/* SIGN OUT ICON */}
+            <MenuItem onClick={handleSignOut} icon={<LogoutOutlinedIcon />}>
+                <Typography>Sign Out</Typography>
+            </MenuItem>
+            </Box>
         </Menu>
       </ProSidebar>
     </Box>

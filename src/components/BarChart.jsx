@@ -1,7 +1,7 @@
 import { useTheme } from "@mui/material";
 import React from 'react';
-import { useState, useEffect } from "react";
-import {db} from "../config/fire";
+import { useState, useEffect } from "react"; 
+import { db } from "../config/fire";
 import { ResponsiveBar } from "@nivo/bar";
 import { token } from "../theme";
 import useAuth from "../useAuth.js";
@@ -10,22 +10,19 @@ const BarChart = ({ isDashboard = false }) => {
   const theme = useTheme();
   const colors = token(theme.palette.mode);
   const [data, setData] = useState([]);
-  const { currentUser } = useAuth(); // get the current user from the AuthContext
+  const { currentUser } = useAuth();
 
   useEffect(() => {
-    if (currentUser) { // make sure the current user exists
-      // Reference the "MockBarData" node for the current user in your database
+    if (currentUser) {
       const dbRef = db.ref(`users/${currentUser.uid}/MockBarData`);
-      // Fetch the data from your database and update the state
       dbRef.on("value", (snapshot) => {
         const barData = snapshot.val();
         setData(barData);
       });
 
-      // Clean up the event listener when the component unmounts
       return () => dbRef.off();
     }
-  }, []);
+  }, [currentUser]);
 
   return (
     <ResponsiveBar

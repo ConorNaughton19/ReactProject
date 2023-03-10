@@ -80,27 +80,27 @@ export const themeSettings = colourtheme => {
       
             // palette values for colourtheme mode
             primary: {
-              main: colors.primary[500],
+              main: colors.primary[100],
             },
             secondary: {
               main: colors.greenAccent[900],
             },
             neutral: {
               colourtheme: colors.grey[900],
-              main: colors.grey[500],
+              main: colors.grey[800],
               light: colors.grey[100],
             },
             background: {
-              default: colors.primary[100],
+              default: colors.secondary[800],
             },
     },
 
     typography: {
       fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-      fontSize: 12,
+      fontSize: 14,
       h1: {
         fontFamily: ["Source Sans Pro", "sans-serif"].join(","),
-        fontSize: 40,
+        fontSize: 45,
       },
       h2: {
         fontFamily: ["Source Sans Pro", "sans-serif"].join(","),

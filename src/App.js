@@ -12,7 +12,13 @@ import FAQ from "./scenes/faq";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { useMode } from "./theme";
 import { AuthProvider } from './AuthContext';
-import {EmailReminder} from "./EmailReminder";
+import Graph from './scenes/graph';
+import EmailComponent from './Email';
+
+function sendEmail() {
+  // ...
+}
+
 
 function App() {
   const [theme] = useMode();
@@ -43,6 +49,8 @@ function App() {
               <Route path="/line" element={<Line />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/bump" element={<Bump />} />
+              <Route path="/graph" element={< Graph />} />
+              <Route path="/email" element={<EmailComponent />} />
             </Routes>
           </main>
         </div>
