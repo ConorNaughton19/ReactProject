@@ -5,7 +5,6 @@ import { db } from "../config/fire";
 import { ResponsiveBar } from "@nivo/bar";
 import { token } from "../theme";
 import useAuth from "../useAuth.js";
-import * as d3 from "d3";
 
 
 const BarChart = ({ isDashboard = false }) => {
