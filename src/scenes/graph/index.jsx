@@ -6,7 +6,7 @@ const Graph = () => {
     return (
       <Box m="20px">
         <Header title="Machine Learning Graph" subtitle="Linear Regression Model of Values" />
-        <Box height="75vh">
+        <Box height="80vh">
           <GraphPage />
         </Box>
       </Box>

@@ -5,8 +5,8 @@ import BumpAreaChart from "../../components/BumpAreaChart";
 const Bump = () => {
   return (
     <Box m="20px">
-      <Header title="Bump Area CHart" subtitle="Simple Bump Area Chart" />
-      <Box height="75vh">
+      <Header title="Bump Area Chart"/>
+      <Box height="80vh">
         <BumpAreaChart />
       </Box>
     </Box>

@@ -1,10 +1,12 @@
 import { useTheme } from "@mui/material";
-import React from 'react';
-import { useState, useEffect } from "react"; 
+import React from "react";
+import { useState, useEffect } from "react";
 import { db } from "../config/fire";
 import { ResponsiveBar } from "@nivo/bar";
 import { token } from "../theme";
 import useAuth from "../useAuth.js";
+import * as d3 from "d3";
+
 
 const BarChart = ({ isDashboard = false }) => {
   const theme = useTheme();
