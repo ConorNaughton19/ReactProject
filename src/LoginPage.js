@@ -35,15 +35,20 @@ const LoginPage = () => {
           { DAY: "Saturday", LOW: 35, HEALTHY: 45, HIGH: 55 },
           { DAY: "Sunday", LOW: 40, HEALTHY: 50, HIGH: 60 },
         ],
-        mockAreaBumpData: [
-          // ...
+        mockAreaBumpData:[
         ],
         mockLineData: [
-          // ...
+          {
+            id: "glucose",
+            data: [
+              { x: 1678320475055, y: 6.8 },
+              { x: 1678320480442, y: 7.9 },
+              { x: 1678320490357, y: 7.3 },
+              { x: 1678320497155, y: 6.4 },
+            ],
+          },
         ],
-        mockPieData: [
-          // ...
-        ],
+      mockPieData: [{num:1}],
       });
 
       setError('');
@@ -53,6 +58,8 @@ const LoginPage = () => {
       setError(error.message);
     }
   };
+
+
 
   const handleSubmit = (event) => {
     event.preventDefault();

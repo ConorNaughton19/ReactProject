@@ -2,11 +2,9 @@ import { useState, useEffect } from "react";
 import { ResponsivePie } from "@nivo/pie";
 import { token } from "../theme";
 import { useTheme } from "@mui/material";
-import {db} from "../config/fire";
+import { db } from "../config/fire";
 
-
-
-const PieChart = () => {
+const PieChart = ({ isDashboard = false }) => {
   const theme = useTheme();
   const colors = token(theme.palette.mode);
   const [data, setData] = useState([]);
@@ -17,12 +15,27 @@ const PieChart = () => {
     // Fetch the data from your database and update the state
     dbRef.on("value", (snapshot) => {
       const pieData = snapshot.val();
-      setData(pieData);
+      setData(sortData(pieData));
     });
 
     // Clean up the event listener when the component unmounts
     return () => dbRef.off();
   }, []);
+
+  // Sorts data into "Low", "In Target", and "High" categories based on the value property
+  const sortData = (data) => {
+    const low = data.filter((item) => item.value < 3.5);
+    const inTarget = data.filter(
+      (item) => item.value >= 3.5 && item.value <= 9.0
+    );
+    const high = data.filter((item) => item.value > 9.0);
+
+    return [
+      { id: "Low", value: low.length },
+      { id: "In Target", value: inTarget.length },
+      { id: "High", value: high.length },
+    ];
+  };
 
   return (
     <ResponsivePie
@@ -51,7 +64,7 @@ const PieChart = () => {
         },
         legends: {
           text: {
-            fill: colors.grey[100],
+            fill: colors.grey[900],
           },
         },
       }}
@@ -62,7 +75,7 @@ const PieChart = () => {
       activeOuterRadiusOffset={8}
       borderColor={{
         from: "color",
-        modifiers: [["darker", 0.2]],
+        modifiers: [["darker", 0.8]],
       }}
       arcLinkLabelsSkipAngle={10}
       arcLinkLabelsTextColor={colors.grey[100]}
@@ -85,6 +98,8 @@ const PieChart = () => {
           padding: 1,
           stagger: true,
         },
+       
+
         {
           id: "lines",
           type: "patternLines",

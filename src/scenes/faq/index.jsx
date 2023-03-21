@@ -26,6 +26,7 @@ const FAQ = () => {
           </Typography>
         </AccordionDetails>
       </Accordion>
+
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography color={colors.greenAccent[500]} variant="h5">
@@ -35,6 +36,32 @@ const FAQ = () => {
         <AccordionDetails>
           <Typography>
             REASONS TO TAKE CARE OF YOUR BLOODS
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion defaultExpanded>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography color={colors.greenAccent[500]} variant="h5">
+            Yet Another Important Question
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            HOW TO MANAGE YOUR DIABETES WHILE TRAVELING
+          </Typography>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion defaultExpanded>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography color={colors.greenAccent[500]} variant="h5">
+            One More Important Question
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography>
+            HOW TO PREPARE FOR A DIABETIC EMERGENCY
           </Typography>
         </AccordionDetails>
       </Accordion>
