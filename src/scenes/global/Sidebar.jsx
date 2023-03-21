@@ -14,6 +14,9 @@ import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import SsidChartIcon from '@mui/icons-material/SsidChart';
+import DataUsageOutlinedIcon from '@mui/icons-material/DataUsageOutlined';
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
+
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -110,7 +113,12 @@ const Sidebar = () => {
             >
               Data
             </Typography>
-        
+            <Item
+              title="User Data"
+              icon={<AccountCircleOutlinedIcon />}
+              to="/userdata"
+              setSelected={setSelected}
+            />
             <Typography
               variant="h6"
               color={colors.grey[300]}

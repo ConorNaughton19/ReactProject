@@ -5,8 +5,8 @@ import BarChart from "../../components/BarChart";
 const Bar = () => {
   return (
     <Box m="20px">
-      <Header title="GLUCOSE READINGS" subtitle="GLUCOSE LEVELS OVER THE DAY" />
-      <Box height="75vh">
+      <Header title="GLUCOSE READINGS" subtitle="GLUCOSE LEVELS OVER THE Week" />
+      <Box height="80vh">
         <BarChart />
       </Box>
     </Box>

@@ -13,12 +13,7 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import { useMode } from "./theme";
 import { AuthProvider } from './AuthContext';
 import Graph from './scenes/graph';
-import EmailComponent from './Email';
-
-function sendEmail() {
-  // ...
-}
-
+import UserData from "./UserData";
 
 function App() {
   const [theme] = useMode();
@@ -50,7 +45,7 @@ function App() {
               <Route path="/faq" element={<FAQ />} />
               <Route path="/bump" element={<Bump />} />
               <Route path="/graph" element={< Graph />} />
-              <Route path="/email" element={<EmailComponent />} />
+              <Route path="/userdata" element={< UserData />} />
             </Routes>
           </main>
         </div>

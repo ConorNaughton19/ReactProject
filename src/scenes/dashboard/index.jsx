@@ -1,41 +1,52 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { token } from "../../theme";
+import { useEffect, useState } from "react";
 import EmailIcon from "@mui/icons-material/Email";
-import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
+import ReportIcon from "@mui/icons-material/Report";
+import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import TrafficIcon from "@mui/icons-material/Traffic";
 import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
-import PieChart from "../../components/PieChart"
+import PieChart from "../../components/PieChart";
 import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
-import fire from "../../config/fire";
+import { db } from "../../config/fire";
+import useAuth from "../../useAuth";
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = token(theme.palette.mode);
+  const [userEmail, setUserEmail] = useState(null);
+  const [numEntries, setNumEntries] = useState(0);
+  const { currentUser } = useAuth();
 
+  useEffect(() => {
+    if (currentUser) {
+      const dbRef = db.ref(`users/${currentUser.uid}/mockLineData/0/data`);
+      dbRef.on("value", (snapshot) => {
+        const lineData = snapshot.val();
+        if (lineData) {
+          setNumEntries(Object.values(lineData).length);
+        }
+      });
 
-  fire.auth().onAuthStateChanged(function(user) {
-    if (user) {
-      // User is signed in.
-      var userEmail = user.email;
-      document.getElementById("welcome").innerHTML = "Welcome Back, " + userEmail + "!";
-    } else {
-      // User is signed out.
-      document.getElementById("welcome").innerHTML = "Welcome!";
+      return () => dbRef.off();
     }
-  });
-  
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (currentUser && currentUser.email) {
+      setUserEmail(currentUser.email);
+    }
+  }, [currentUser]);
 
   return (
     <Box m="20px">
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="DASHBOARD" subtitle="Welcome to your dashboard," />
-        <div id="welcome">Welcome!</div>
-
+        <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
+        <div id="welcome">Welcome{userEmail ? `, ${userEmail}!` : "!"}</div>
       </Box>
 
       {/* GRID & CHARTS */}
@@ -54,11 +65,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="21"
-            subtitle="Readings Logged"
-            progress="0.75"
-            
-            increase="+14%"
+            title="Readings Logged"
+            subtitle={numEntries}
             icon={
               <EmailIcon
                 sx={{ color: colors.greenAccent[100], fontSize: "26px" }}
@@ -76,11 +84,9 @@ const Dashboard = () => {
           <StatBox
             title="2"
             subtitle="Low Readings"
-            progress="0.50"
-            increase="+21%"
             icon={
-              <PointOfSaleIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
+              <ReportIcon
+                sx={{ color: colors.greenAccent[600], fontSize: "30" }}
               />
             }
           />
@@ -93,10 +99,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="32,441"
+            title="1"
             subtitle="Readings taken today"
-            progress="0.30"
-            increase="+5%"
             icon={
               <PersonAddIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
@@ -114,10 +118,8 @@ const Dashboard = () => {
           <StatBox
             title="7.4mmol"
             subtitle="Estimated Hb1Ac"
-            progress="0.80"
-            increase="+1%"
             icon={
-              <TrafficIcon
+              <HealthAndSafetyIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
@@ -149,12 +151,11 @@ const Dashboard = () => {
                 variant="h3"
                 fontWeight="bold"
                 color={colors.greenAccent[900]}
-              >
-              </Typography>
+              ></Typography>
             </Box>
           </Box>
           <Box height="250px" m="-20px 0 0 0">
-            <LineChart isDashboard={false} />
+            <LineChart isDashboard={false} hideSelect={true} />
           </Box>
         </Box>
         <Box
@@ -162,47 +163,44 @@ const Dashboard = () => {
           gridRow="span 2"
           backgroundColor={colors.blueAccent[300]}
           overflow="auto"
-        >
-
-        <Box
-          gridColumn="span 8"
-          gridRow="span 2"
-          backgroundColor={colors.blueAccent[300]}
         >
           <Box
-            mt="25px"
-            p="0 30px"
-            display="flex "
-            justifyContent="space-between"
-            alignItems="center"
+            gridColumn="span 8"
+            gridRow="span 2"
+            backgroundColor={colors.blueAccent[300]}
           >
-            <Box>
-              <Typography
-                variant="h5"
-                fontWeight="600"
-                color={colors.grey[100]}
-              >
-                Pie GRAPH
-              </Typography>
-              <Typography
-                variant="h3"
-                fontWeight="bold"
-                color={colors.greenAccent[900]}
-              >
-              </Typography>
+            <Box
+              mt="25px"
+              p="0 30px"
+              display="flex "
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Box>
+                <Typography
+                  variant="h5"
+                  fontWeight="600"
+                  color={colors.grey[100]}
+                >
+                  Pie GRAPH
+                </Typography>
+                <Typography
+                  variant="h3"
+                  fontWeight="bold"
+                  color={colors.greenAccent[900]}
+                ></Typography>
+              </Box>
+            </Box>
+            <Box height="250px" m="-20px 0 0 0">
+              <PieChart isDashboard={false} hideSelect={true} />
             </Box>
           </Box>
-          <Box height="250px" m="-20px 0 0 0">
-            <PieChart isDashboard={false} />
-          </Box>
-        </Box>
-        <Box
-          gridColumn="span 4"
-          gridRow="span 2"
-          backgroundColor={colors.blueAccent[300]}
-          overflow="auto"
-        >
-        </Box>
+          <Box
+            gridColumn="span 4"
+            gridRow="span 2"
+            backgroundColor={colors.blueAccent[300]}
+            overflow="auto"
+          ></Box>
         </Box>
 
         {/* ROW 3 */}
@@ -222,7 +220,7 @@ const Dashboard = () => {
             mt="25px"
           >
             <ProgressCircle size="125" />
-            
+
             <Typography>Includes extra misc expenditures and costs</Typography>
           </Box>
         </Box>
@@ -255,8 +253,7 @@ const Dashboard = () => {
           >
             REMINDER TO CHECK BLOODS:
           </Typography>
-          <Box height="200px">
-          </Box>
+          <Box height="200px"></Box>
         </Box>
       </Box>
     </Box>
