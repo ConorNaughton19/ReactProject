@@ -5,7 +5,8 @@ import { token } from "../theme";
 import { db } from "../config/fire";
 import { useState, useEffect, useCallback } from "react";
 import useAuth from "../useAuth.js";
-import { Select, MenuItem } from "@mui/material";
+import { Select, MenuItem, Typography, Box, Grid } from "@mui/material";
+
 
 const LineChart = ({ isDashboard = false, hideSelect = false }) => {
   const [selectedRange, setSelectedRange] = useState("24h");
@@ -78,6 +79,11 @@ const LineChart = ({ isDashboard = false, hideSelect = false }) => {
       return;
     }
 
+    if (glucoseReading <= 0) {
+      alert("Please enter a positive value.");
+      return;
+    }
+
     checkGlucoseReading(glucoseReading);
     const timestamp = Date.now();
     db.ref(`users/${currentUser.uid}/mockLineData/0/data/${timestamp}`).set({
@@ -88,9 +94,9 @@ const LineChart = ({ isDashboard = false, hideSelect = false }) => {
 
   const checkGlucoseReading = (glucoseReading) => {
     if (glucoseReading < 3.6) {
-      alert("Your glucose reading is low. Please check again soon.");
+      alert("Your glucose reading is low, Have some fast acting Sugar and check again soon!");
     } else if (glucoseReading > 15) {
-      alert("Your glucose reading is high. Please check again soon.");
+      alert("Your glucose reading is high. Check for Ketones and take an adjustment to correct the glucose reading!");
     }
   };
 
@@ -145,26 +151,29 @@ const LineChart = ({ isDashboard = false, hideSelect = false }) => {
 
   const getXScaleMinMax = () => {
     let min, max;
+    const latestReadingTime = get_data()[0]?.data.slice(-1)[0]?.x;
+  
     switch (selectedRange) {
       case "24h":
         min = moment().subtract(24, "hours").valueOf();
-        max = moment().valueOf();
+        max = latestReadingTime || moment().valueOf();
         break;
       case "7d":
         min = moment().subtract(7, "days").valueOf();
-        max = moment().valueOf();
+        max = latestReadingTime || moment().valueOf();
         break;
       case "30d":
         min = moment().subtract(30, "days").valueOf();
-        max = moment().valueOf();
+        max = latestReadingTime || moment().valueOf();
         break;
       default:
         min = moment().subtract(24, "hours").valueOf();
-        max = moment().valueOf();
+        max = latestReadingTime || moment().valueOf();
         break;
     }
     return { min, max };
   };
+  
 
   const CustomLayer = ({ yScale, xScale }) => {
     const endX = xScale(getXScaleMinMax().max);
@@ -174,29 +183,29 @@ const LineChart = ({ isDashboard = false, hideSelect = false }) => {
         y={yScale(8)}
         width={endX}
         height={yScale(4.5) - yScale(8)}
-        fill="yellow"
-        opacity={0.3}
+        fill="lightgreen"
+        opacity={0.4}
       />
     );
   };
 
   return (
     <>
-      <div>
-        {!hideSelect && (
-          <>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: "1rem",
-              }}
-            >
-              <span style={{ fontWeight: "normal", marginRight: "0.5rem" }}>
-                Average Glucose Level for Past {selectedRange}:
-              </span>
-              <span>{average} mmol</span>
-            </div>
+      {!hideSelect && (
+        <Box mb={2}>
+          <Grid container spacing={1} alignItems="center">
+            <Grid item>
+              <Typography variant="suFpobtitle1">
+                <strong>Average Glucose Level for Past {selectedRange}:</strong>
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant="h3" color="textSecondary">
+                {average} mmol
+              </Typography>
+            </Grid>
+          </Grid>
+          <Box mb={2}>
             <Select
               value={selectedRange}
               onChange={(e) => setSelectedRange(e.target.value)}
@@ -204,19 +213,20 @@ const LineChart = ({ isDashboard = false, hideSelect = false }) => {
                 name: "range",
                 id: "range-select",
               }}
-              style={{ marginBottom: "1rem" }}
             >
               <MenuItem value="24h">Last 24 Hours</MenuItem>
               <MenuItem value="7d">Last 7 Days</MenuItem>
               <MenuItem value="30d">Last 30 Days</MenuItem>
             </Select>
-          </>
-        )}
-      </div>
+          </Box>
+        </Box>
+      )}
 
       <ResponsiveLine
-        // Render the chart only if there is data
+        key={selectedRange}
+        // Rendering the chart only if there is data, not null.....
         data={get_data()}
+ 
         theme={{
           axis: {
             domain: {
@@ -251,7 +261,7 @@ const LineChart = ({ isDashboard = false, hideSelect = false }) => {
             },
           },
         }}
-        colors={isDashboard ? [colors.primary[500]] : ["black"]}
+        colors={["black"]}
         margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
         xScale={{
           type: "time",
@@ -261,7 +271,7 @@ const LineChart = ({ isDashboard = false, hideSelect = false }) => {
           ...getXScaleMinMax(),
         }}
         xFormat={(value) => moment(value).format("YYYY-MM-DD HH:mm:ss")}
-        enablePointLabel={true}
+        enablePointLabel={false}
         yScale={{
           type: "linear",
           min: "0",
@@ -275,7 +285,6 @@ const LineChart = ({ isDashboard = false, hideSelect = false }) => {
           reverse: false,
         }}
         yFormat=" >-.2f"
-        //curve="catmullRom"
         axisTop={null}
         axisRight={null}
         axisBottom={{
@@ -298,9 +307,9 @@ const LineChart = ({ isDashboard = false, hideSelect = false }) => {
                 return moment(value).format("HH:mm");
             }
           },
-          ticks: selectedRange === "24h" ? 8 : selectedRange === "7d" ? 7 : 15,
+          ticks: selectedRange === "24h" ? 12 : selectedRange === "7d" ? 7 : 15,
         }}
-        curve={selectedRange === "24h" ? "monotoneX" : "linear"}
+        curve={selectedRange === "24h" ? "monotoneX" : "monotoneX"}
         axisLeft={{
           orient: "left",
           tickValues: 5,
@@ -313,7 +322,8 @@ const LineChart = ({ isDashboard = false, hideSelect = false }) => {
         }}
         enableGridX={true}
         enableGridY={true}
-        pointSize={11}
+        enableSlices="x"
+        pointSize={5}
         pointColor={"yellow"}
         pointBorderWidth={1}
         pointBorderColor={{ from: "serieColor" }}

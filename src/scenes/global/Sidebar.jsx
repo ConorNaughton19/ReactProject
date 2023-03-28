@@ -6,17 +6,16 @@ import { AuthContext } from "../../AuthContext";
 import { token } from "../../theme";
 import fire from "../../config/fire";
 import "react-pro-sidebar/dist/css/styles.css";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
-import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
-import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import SsidChartIcon from '@mui/icons-material/SsidChart';
-import DataUsageOutlinedIcon from '@mui/icons-material/DataUsageOutlined';
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-
+import ScatterPlotOutlinedIcon from '@mui/icons-material/ScatterPlotOutlined';
+import GrainIcon from '@mui/icons-material/Grain';
+import LiveHelpIcon from '@mui/icons-material/LiveHelp';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import StackedBarChartIcon from '@mui/icons-material/StackedBarChart';
+import PieChartIcon from '@mui/icons-material/PieChart';
+import ShowChartIcon from '@mui/icons-material/ShowChart';
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -56,6 +55,9 @@ const Sidebar = () => {
   return (
     <Box
       sx={{
+        position: "sticky",
+        top: 0,
+        height: "121vh",
         "& .pro-sidebar-inner": {
           background: `${colors.secondary[400]} !important`,
         },
@@ -102,7 +104,7 @@ const Sidebar = () => {
             <Item
               title="Dashboard"
               to="/dashboard"
-              icon={<HomeOutlinedIcon />}
+              icon={<DashboardIcon />}
               selected={selected}
               setSelected={setSelected}
             />
@@ -114,8 +116,8 @@ const Sidebar = () => {
               Data
             </Typography>
             <Item
-              title="User Data"
-              icon={<AccountCircleOutlinedIcon />}
+              title="Glucose Readings"
+              icon={<AccountCircleIcon />}
               to="/userdata"
               setSelected={setSelected}
             />
@@ -129,7 +131,7 @@ const Sidebar = () => {
             <Item
               title="FAQ Page"
               to="/faq"
-              icon={<HelpOutlineOutlinedIcon />}
+              icon={<LiveHelpIcon />}
               selected={selected}
               setSelected={setSelected}
             />
@@ -141,33 +143,41 @@ const Sidebar = () => {
               Charts
             </Typography>
             <Item
-              title="Bar Chart"
+              title="Weekly Chart"
               to="/bar"
-              icon={<BarChartOutlinedIcon />}
+              icon={<StackedBarChartIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
-              title="Pie Chart"
+              title="Time In Range"
               to="/pie"
-              icon={<PieChartOutlineOutlinedIcon />}
+              icon={<PieChartIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
-              title="Line Chart"
+              title="Daily Chart"
               to="/line"
-              icon={<TimelineOutlinedIcon />}
+              icon={<ShowChartIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
-              title="Bump-Area Chart"
+              title="ScatterPlot Graph"
               to="/bump"
-              icon={<SsidChartIcon />}
+              icon={<GrainIcon />}
               selected={selected}
               setSelected={setSelected}
             />
+            <Item
+            title="Anomaly Detection"
+            to="/graph"
+            icon={<ScatterPlotOutlinedIcon />}
+            selected={selected}
+            setSelected={setSelected}
+          />
+
              {/* SIGN OUT ICON */}
             <MenuItem onClick={handleSignOut} icon={<LogoutOutlinedIcon />}>
                 <Typography>Sign Out</Typography>

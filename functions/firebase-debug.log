@@ -1,0 +1,31 @@
+[debug] [2023-03-22T18:13:54.836Z] ----------------------------------------------------------------------
+[debug] [2023-03-22T18:13:54.839Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\conor\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only functions
+[debug] [2023-03-22T18:13:54.839Z] CLI Version:   11.24.0
+[debug] [2023-03-22T18:13:54.840Z] Platform:      win32
+[debug] [2023-03-22T18:13:54.840Z] Node Version:  v18.12.1
+[debug] [2023-03-22T18:13:54.842Z] Time:          Wed Mar 22 2023 18:13:54 GMT+0000 (Greenwich Mean Time)
+[debug] [2023-03-22T18:13:54.842Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2023-03-22T18:13:54.959Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2023-03-22T18:13:54.960Z] > authorizing via signed-in user (conornaughton6@gmail.com)
+[debug] [2023-03-22T18:13:54.960Z] [iam] checking project final-year-project-datab-3d5d4 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2023-03-22T18:13:54.963Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/final-year-project-datab-3d5d4:testIamPermissions [none]
+[debug] [2023-03-22T18:13:54.964Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/final-year-project-datab-3d5d4:testIamPermissions x-goog-quota-user=projects/final-year-project-datab-3d5d4
+[debug] [2023-03-22T18:13:54.964Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/final-year-project-datab-3d5d4:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2023-03-22T18:13:55.212Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/final-year-project-datab-3d5d4:testIamPermissions 200
+[debug] [2023-03-22T18:13:55.212Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/final-year-project-datab-3d5d4:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2023-03-22T18:13:55.213Z] >>> [apiv2][query] POST https://iam.googleapis.com/v1/projects/final-year-project-datab-3d5d4/serviceAccounts/final-year-project-datab-3d5d4@appspot.gserviceaccount.com:testIamPermissions [none]
+[debug] [2023-03-22T18:13:55.213Z] >>> [apiv2][body] POST https://iam.googleapis.com/v1/projects/final-year-project-datab-3d5d4/serviceAccounts/final-year-project-datab-3d5d4@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[debug] [2023-03-22T18:13:55.368Z] <<< [apiv2][status] POST https://iam.googleapis.com/v1/projects/final-year-project-datab-3d5d4/serviceAccounts/final-year-project-datab-3d5d4@appspot.gserviceaccount.com:testIamPermissions 200
+[debug] [2023-03-22T18:13:55.368Z] <<< [apiv2][body] POST https://iam.googleapis.com/v1/projects/final-year-project-datab-3d5d4/serviceAccounts/final-year-project-datab-3d5d4@appspot.gserviceaccount.com:testIamPermissions {"permissions":["iam.serviceAccounts.actAs"]}
+[info] 
+[info] === Deploying to 'final-year-project-datab-3d5d4'...
+[info] 
+[info] i  deploying functions 
+[info] Running command: npm --prefix "$RESOURCE_DIR" run lint
+[debug] [2023-03-22T18:14:05.007Z] Error: Timed out.
+    at Timeout._onTimeout (C:\Users\conor\AppData\Roaming\npm\node_modules\firebase-tools\lib\utils.js:253:49)
+    at listOnTimeout (node:internal/timers:564:17)
+    at process.processTimers (node:internal/timers:507:7)
+[error] 
+[error] Error: An unexpected error has occurred.
