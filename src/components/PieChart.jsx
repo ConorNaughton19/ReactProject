@@ -20,29 +20,35 @@ const PieChart = ({ isDashboard = false, hideSelect = false }) => {
       "7d": 7 * 24 * 60 * 60 * 1000,
       "30d": 30 * 24 * 60 * 60 * 1000,
     }[selectedRange];
-
+  
+    const startOfCurrentDay = new Date();
+    startOfCurrentDay.setHours(0, 0, 0, 0);
+  
     if (rangeInMs && currentUser) {
       const dbRef = db.ref(`users/${currentUser.uid}/mockLineData/0/data`);
       dbRef
         .orderByKey()
-        .startAt((Date.now() - rangeInMs).toString())
+        .startAt(
+          selectedRange === "24h"
+            ? startOfCurrentDay.getTime().toString()
+            : (Date.now() - rangeInMs).toString()
+        )
         .endAt(Date.now().toString())
-        .on("value", (snapshot) => {
-          const lineData = snapshot.val();
-          if (lineData) {
-            setData(
-              Object.values(lineData).map((d) => ({ id: d.x, value: d.y }))
-            );
-          } else {
-            setData([]);
-          }
+        .once("value")
+        .then((snapshot) => {
+          const newData = snapshot.val() || {};
+          setData(
+            Object.entries(newData).map(([key, value]) => ({
+              id: key,
+              value: value.y,
+            }))
+          );
         });
       return () => dbRef.off();
     }
   }, [currentUser, selectedRange]);
-
-
-  const totalValue = data.reduce((acc, d) => acc + d.value, 0);
+  
+  
 
   const categorizedData = data.reduce(
     (acc, d) => {
@@ -61,32 +67,57 @@ const PieChart = ({ isDashboard = false, hideSelect = false }) => {
       { id: "High", value: 0 },
     ]
   );
-
-
+  
+  const totalReadings = categorizedData.reduce(
+    (acc, d) => acc + d.value,
+    0
+  );
+  
+  const percentageData = categorizedData.map((d) => {
+    return {
+      id: d.id,
+      label: d.id,
+      value: (d.value / totalReadings) * 100,
+    };
+  });
+  
+  const sliceLabel = ({ value }) => {
+    const percent = Math.round((value / totalReadings) * 1000) / 10;
+    return `${percent.toFixed(1)}%`;
+  };
+  
+  const roundedData = percentageData.map(d => {
+    return {
+      id: d.id,
+      label: d.label,
+      value: d.value.toFixed(1)
+    };
+  });
+  
   return (
     <>
-<div>
-{!hideSelect && (
+      <div>
+        {!hideSelect && (
           <>
-      <Select
-        value={selectedRange}
-        onChange={(e) => setSelectedRange(e.target.value)}
-        inputProps={{
-          name: "range",
-          id: "range-select",
-        }}
-        style={{ marginBottom: "1rem" }}
-      >
-        <MenuItem value="24h">Last 24 Hours</MenuItem>
-        <MenuItem value="7d">Last 7 Days</MenuItem>
-        <MenuItem value="30d">Last 30 Days</MenuItem>
-      </Select>
-      </>
+            <Select
+              value={selectedRange}
+              onChange={(e) => setSelectedRange(e.target.value)}
+              inputProps={{
+                name: "range",
+                id: "range-select",
+              }}
+              style={{ marginBottom: "1rem" }}
+            >
+              <MenuItem value="24h">Last 24 Hours</MenuItem>
+              <MenuItem value="7d">Last 7 Days</MenuItem>
+              <MenuItem value="30d">Last 30 Days</MenuItem>
+            </Select>
+          </>
         )}
       </div>
       <ResponsivePie
-        data={categorizedData.filter((d) => d.value > 0)}
-        theme={{
+      data={roundedData.filter((d) => d.value > 0)}
+      theme={{
           textColor: colors.grey[900],
           tooltip: {
             container: {
@@ -94,10 +125,45 @@ const PieChart = ({ isDashboard = false, hideSelect = false }) => {
             },
           },
         }}
+        sliceLabel={sliceLabel}
         margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
         innerRadius={0.5}
         padAngle={0.7}
         cornerRadius={3}
+        defs={[
+          {
+            id: 'colorLow',
+            type: 'patternDots',
+            background: 'blue',
+            color: 'blue',
+            size: 1,
+            padding: 0,
+            stagger: true
+          },
+          {
+            id: 'colorHealthy',
+            type: 'patternDots',
+            background: 'green',
+            color: 'green',
+            size: 1,
+            padding: 0,
+            stagger: true
+          },
+          {
+            id: 'colorHigh',
+            type: 'patternDots',
+            background: 'red',
+            color: 'red',
+            size: 1,
+            padding: 0,
+            stagger: true
+          },
+        ]}
+        fill={[
+          { match: { id: 'Low' }, id: 'colorLow' },
+          { match: { id: 'Healthy' }, id: 'colorHealthy' },
+          { match: { id: 'High' }, id: 'colorHigh' },
+        ]}
         colors={{ scheme: "category10" }}
         borderWidth={1}
         borderColor={{ from: "color", modifiers: [["darker", 0.2]] }}

@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { db } from "./config/fire";
 import fire from "./config/fire";
 import logo from "./heart.png";
 import "./index.css";
@@ -9,46 +8,37 @@ import { AuthContext } from "./AuthContext";
 const LoginPage = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
+  const [passwordRequirements, setPasswordRequirements] = useState({
+    minLength: false,
+    uppercase: false,
+    lowercase: false,
+    digit: false,
+    specialChar: false,
+  });
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
   const { setUser } = useContext(AuthContext);
 
   const handleChange = (event) => {
     setFormData({ ...formData, [event.target.name]: event.target.value });
+
+    if (event.target.name === 'password' && !isLogin) {
+      setPasswordRequirements({
+        minLength: event.target.value.length >= 6,
+        uppercase: /[A-Z]/.test(event.target.value),
+        lowercase: /[a-z]/.test(event.target.value),
+        digit: /\d/.test(event.target.value),
+        specialChar: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(event.target.value),
+      });
+    }
   };
+
 
   const handleSignup = async () => {
     const { email, password } = formData;
-
     try {
       const { user } = await fire.auth().createUserWithEmailAndPassword(email, password);
-
-      // Create a new database node for the user with mock data
-      const userRef = db.ref(`users/${user.uid}`);
-      userRef.set({
-        MockBarData: [
-          { DAY: "Monday", LOW: 10, HEALTHY: 20, HIGH: 30 },
-          { DAY: "Tuesday", LOW: 15, HEALTHY: 25, HIGH: 35 },
-          { DAY: "Wednesday", LOW: 20, HEALTHY: 30, HIGH: 40 },
-          { DAY: "Thursday", LOW: 25, HEALTHY: 35, HIGH: 45 },
-          { DAY: "Friday", LOW: 30, HEALTHY: 40, HIGH: 50 },
-          { DAY: "Saturday", LOW: 35, HEALTHY: 45, HIGH: 55 },
-          { DAY: "Sunday", LOW: 40, HEALTHY: 50, HIGH: 60 },
-        ],
-        mockAreaBumpData:[
-        ],
-        mockLineData: [
-          {
-            id: "glucose",
-            data: [
-              { x: 1678320475055, y: 6.8 },
-            ],
-          },
-        ],
-      mockPieData: [{num:1}],
-      });
-
-      setError('');
+      setError('Unable to create new user');
       setUser(user); // set user in the AuthContext
       navigate('/dashboard');
     } catch (error) {
@@ -56,12 +46,10 @@ const LoginPage = () => {
     }
   };
 
-
-
   const handleSubmit = (event) => {
     event.preventDefault();
     const { email, password } = formData;
-
+  
     if (isLogin) {
       fire.auth().signInWithEmailAndPassword(email, password)
         .then(({ user }) => {
@@ -73,16 +61,18 @@ const LoginPage = () => {
           setError(error.message);
         });
     } else {
-      if (password.length < 6) {
-        setError('Password must be at least 6 characters long');
+      const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{6,}$/;
+  
+      if (!passwordRegex.test(password)) {
+        setError('Password must be at least 6 characters long, include one uppercase letter, one lowercase letter, one digit, and one special character');
         return;
       }
-
+  
       if (!email.includes('@')) {
         setError('Email must include "@"');
         return;
       }
-
+  
       fire.auth().fetchSignInMethodsForEmail(email)
         .then((signInMethods) => {
           if (signInMethods.length > 0) {
@@ -95,12 +85,13 @@ const LoginPage = () => {
           setError(error.message);
         });
     }
+  
 
     if (!isLogin) {
       fire.auth().sendPasswordResetEmail(email)
         .then(() => {
           // Password reset email sent successfully
-          setError('');
+          setError('email was not found try again');
         })
         .catch((error) => {
           setError(error.message);
@@ -123,9 +114,21 @@ const LoginPage = () => {
             <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
           </div>
           <div>
-            <label htmlFor="password">Password:</label>
+          <label htmlFor="password">Password:</label>
             <input type="password" id="password" name="password" value={formData.password} onChange={handleChange} required />
           </div>
+          {!isLogin && (
+            <div>
+              <p>Password requirements:</p>
+              <ul>
+                <li style={{ color: passwordRequirements.minLength ? 'yellow' : 'black' }}>At least 6 characters long</li>
+                <li style={{ color: passwordRequirements.uppercase ? 'yellow' : 'black' }}>At least one uppercase letter</li>
+                <li style={{ color: passwordRequirements.lowercase ? 'yellow' : 'black' }}>At least one lowercase letter</li>
+                <li style={{ color: passwordRequirements.digit ? 'yellow' : 'black' }}>At least one digit</li>
+                <li style={{ color: passwordRequirements.specialChar ? 'yellow' : 'black' }}>At least one special character</li>
+              </ul>
+            </div>
+          )}
           {error && <div>{error}</div>}
           <button type="submit">{isLogin ? 'Login' : 'Sign Up'}</button>
         </form>
