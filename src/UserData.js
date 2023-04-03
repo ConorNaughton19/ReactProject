@@ -29,9 +29,7 @@ const UserData = () => {
       dbRef.on("value", (snapshot) => {
         const lineData = snapshot.val();
         if (lineData) {
-          const sortedData = Object.entries(lineData).sort(
-            ([a], [b]) => b - a
-          );
+          const sortedData = Object.entries(lineData).sort(([a], [b]) => b - a);
           setData(sortedData);
         }
       });
@@ -70,17 +68,17 @@ const UserData = () => {
       return;
     }
 
-    // Check if the glucose reading is positive
-  if (glucoseValue <= 0) {
-    alert("Please enter a positive glucose reading.");
-    return;
-  }
+    // Check if the glucose reading is positive before adding
+    if (glucoseValue <= 0) {
+      alert("Please enter a positive glucose reading.");
+      return;
+    }
 
     const dateObj = new Date(`${newReading.date}T${newReading.time}`);
     const timestamp = dateObj.getTime();
 
     db.ref(`users/${currentUser.uid}/mockLineData/0/data/${timestamp}`).set({
-      x: timestamp, // Add this line to store the timestamp as the x value
+      x: timestamp, //timestamp as the x value
       y: glucoseValue,
       note: "",
     });
@@ -103,34 +101,33 @@ const UserData = () => {
   const convertDataToCSV = (data) => {
     const header = ["Timestamp", "Glucose Reading", "Note"];
     const csvRows = [];
-  
+
     csvRows.push(header.join(","));
-  
+
     for (const [timestamp, { y, note }] of data) {
       const date = new Date(parseInt(timestamp)).toLocaleString();
       const row = [date, y, note || ""];
       csvRows.push(row.join(","));
     }
-  
+
     return csvRows.join("\n");
   };
-
 
   const downloadCSV = () => {
     const csvContent = convertDataToCSV(data);
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
-  
+
     link.setAttribute("href", url);
     link.setAttribute("download", "glucose_readings.csv");
     link.style.visibility = "hidden";
-  
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
-  
+
   return (
     <div>
       <Box
@@ -183,71 +180,70 @@ const UserData = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-  {displayedData.map(([timestamp, { y, note }]) => (
-    <TableRow key={timestamp}>
-      <TableCell component="th" scope="row">
-        {new Date(parseInt(timestamp)).toLocaleString()}
-      </TableCell>
-      <TableCell>
-        <TextField
-          type="number"
-          defaultValue={y}
-          onBlur={(e) => updateReading(timestamp, e.target.value)}
-        />
-      </TableCell>
-      <TableCell>
-        <TextField
-          defaultValue={note || ""}
-          onBlur={(e) => updateNote(timestamp, e.target.value)}
-        />
-      </TableCell>
-      <TableCell>
-        <IconButton
-          edge="end"
-          color="inherit"
-          onClick={() => deleteReading(timestamp)}
-        >
-          <DeleteIcon />
-        </IconButton>
-      </TableCell>
-    </TableRow>
-  ))}
-</TableBody>
+            {displayedData.map(([timestamp, { y, note }]) => (
+              <TableRow key={timestamp}>
+                <TableCell component="th" scope="row">
+                  {new Date(parseInt(timestamp)).toLocaleString()}
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    type="number"
+                    defaultValue={y}
+                    onBlur={(e) => updateReading(timestamp, e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <TextField
+                    defaultValue={note || ""}
+                    onBlur={(e) => updateNote(timestamp, e.target.value)}
+                  />
+                </TableCell>
+                <TableCell>
+                  <IconButton
+                    edge="end"
+                    color="inherit"
+                    onClick={() => deleteReading(timestamp)}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
         </Table>
       </TableContainer>
-  <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
-    <Button
-      variant="contained"
-      color="primary"
-      onClick={() => changePage(currentPage - 1)}
-    >
-      Previous Page
-    </Button>
-    <Box
-      sx={{
-        marginLeft: 1,
-        marginRight: 1,
-        display: "flex",
-        alignItems: "center",
-      }}
-    >
-      Page {currentPage} of {Math.ceil(data.length / ITEMS_PER_PAGE)}
-    </Box>
-    <Button
-      variant="contained"
-      color="primary"
-      onClick={() => changePage(currentPage + 1)}
-    >
-      Next Page
-    </Button>
-  </Box>
+      <Box sx={{ display: "flex", justifyContent: "center", marginTop: 2 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => changePage(currentPage - 1)}
+        >
+          Previous Page
+        </Button>
+        <Box
+          sx={{
+            marginLeft: 1,
+            marginRight: 1,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          Page {currentPage} of {Math.ceil(data.length / ITEMS_PER_PAGE)}
+        </Box>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => changePage(currentPage + 1)}
+        >
+          Next Page
+        </Button>
+      </Box>
 
-  <Box sx={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
-  <Button variant="contained" color="primary" onClick={downloadCSV}>
-    Download CSV
-  </Button>
-</Box>
-
+      <Box sx={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
+        <Button variant="contained" color="primary" onClick={downloadCSV}>
+          Download CSV
+        </Button>
+      </Box>
     </div>
   );
 };

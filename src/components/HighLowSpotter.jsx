@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import useAuth from "../useAuth.js";
 import { Select, MenuItem, Typography, Box, Grid } from "@mui/material";
 
-const BumpAreaChart = ({ isDashboard = false, hideSelect = false }) => {
+const HighLowSpotter = ({ isDashboard = false, hideSelect = false }) => {
   const [selectedRange, setSelectedRange] = useState("24h");
   const [data, setData] = useState([]);
   const [average, setAverage] = useState(0);
@@ -175,7 +175,7 @@ const BumpAreaChart = ({ isDashboard = false, hideSelect = false }) => {
           format: "%Q",
           precision: "second",
           useUTC: true,
-          min: getXScaleMinMax().min, // change min value
+          min: getXScaleMinMax().min, 
           max: getXScaleMinMax().max,
         }}
         xFormat={(value) => moment(value).format("YYYY-MM-DD HH:mm:ss")}
@@ -255,4 +255,4 @@ const BumpAreaChart = ({ isDashboard = false, hideSelect = false }) => {
   );
 };
 
-export default BumpAreaChart;
+export default HighLowSpotter;

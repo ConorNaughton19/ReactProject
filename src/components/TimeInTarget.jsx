@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import useAuth from "../useAuth.js";
 import { Select, MenuItem } from "@mui/material";
 
-const PieChart = ({ isDashboard = false, hideSelect = false }) => {
+const TimeInTarget = ({ isDashboard = false, hideSelect = false }) => {
   const theme = useTheme();
   const colors = token(theme.palette.mode);
   const { currentUser } = useAuth();
@@ -20,10 +20,10 @@ const PieChart = ({ isDashboard = false, hideSelect = false }) => {
       "7d": 7 * 24 * 60 * 60 * 1000,
       "30d": 30 * 24 * 60 * 60 * 1000,
     }[selectedRange];
-  
+
     const startOfCurrentDay = new Date();
     startOfCurrentDay.setHours(0, 0, 0, 0);
-  
+
     if (rangeInMs && currentUser) {
       const dbRef = db.ref(`users/${currentUser.uid}/mockLineData/0/data`);
       dbRef
@@ -47,8 +47,6 @@ const PieChart = ({ isDashboard = false, hideSelect = false }) => {
       return () => dbRef.off();
     }
   }, [currentUser, selectedRange]);
-  
-  
 
   const categorizedData = data.reduce(
     (acc, d) => {
@@ -67,12 +65,9 @@ const PieChart = ({ isDashboard = false, hideSelect = false }) => {
       { id: "High", value: 0 },
     ]
   );
-  
-  const totalReadings = categorizedData.reduce(
-    (acc, d) => acc + d.value,
-    0
-  );
-  
+
+  const totalReadings = categorizedData.reduce((acc, d) => acc + d.value, 0);
+
   const percentageData = categorizedData.map((d) => {
     return {
       id: d.id,
@@ -80,20 +75,20 @@ const PieChart = ({ isDashboard = false, hideSelect = false }) => {
       value: (d.value / totalReadings) * 100,
     };
   });
-  
+
   const sliceLabel = ({ value }) => {
     const percent = Math.round((value / totalReadings) * 1000) / 10;
     return `${percent.toFixed(1)}%`;
   };
-  
-  const roundedData = percentageData.map(d => {
+
+  const roundedData = percentageData.map((d) => {
     return {
       id: d.id,
       label: d.label,
-      value: d.value.toFixed(1)
+      value: d.value.toFixed(1),
     };
   });
-  
+
   return (
     <>
       <div>
@@ -106,7 +101,7 @@ const PieChart = ({ isDashboard = false, hideSelect = false }) => {
                 name: "range",
                 id: "range-select",
               }}
-              style={{ marginBottom: "1rem" }}
+              style={{ marginBottom: "4rem", marginTop: "1rem" }}
             >
               <MenuItem value="24h">Last 24 Hours</MenuItem>
               <MenuItem value="7d">Last 7 Days</MenuItem>
@@ -116,8 +111,8 @@ const PieChart = ({ isDashboard = false, hideSelect = false }) => {
         )}
       </div>
       <ResponsivePie
-      data={roundedData.filter((d) => d.value > 0)}
-      theme={{
+        data={roundedData.filter((d) => d.value > 0)}
+        theme={{
           textColor: colors.grey[900],
           tooltip: {
             container: {
@@ -132,41 +127,49 @@ const PieChart = ({ isDashboard = false, hideSelect = false }) => {
         cornerRadius={3}
         defs={[
           {
-            id: 'colorLow',
-            type: 'patternDots',
-            background: 'blue',
-            color: 'blue',
+            id: "colorLow",
+            type: "patternDots",
+            background: "rgba(0, 175, 255, 0.5)",
+            color: "rgba(0, 175, 255, 0.5)",
             size: 1,
             padding: 0,
-            stagger: true
+            stagger: true,
           },
           {
-            id: 'colorHealthy',
-            type: 'patternDots',
-            background: 'green',
-            color: 'green',
+            id: "colorHealthy",
+            type: "patternDots",
+            background: "rgba(0, 128, 0, 0.5)",
+            color: "rgba(0, 128, 0, 0.5)",
             size: 1,
             padding: 0,
-            stagger: true
+            stagger: true,
           },
           {
-            id: 'colorHigh',
-            type: 'patternDots',
-            background: 'red',
-            color: 'red',
+            id: "colorHigh",
+            type: "patternDots",
+            background: "rgba(255, 0, 0, 0.5)",
+            color: "rgba(255, 0, 0, 0.5)",
             size: 1,
             padding: 0,
-            stagger: true
+            stagger: true,
           },
         ]}
         fill={[
-          { match: { id: 'Low' }, id: 'colorLow' },
-          { match: { id: 'Healthy' }, id: 'colorHealthy' },
-          { match: { id: 'High' }, id: 'colorHigh' },
+          { match: { id: "Low" }, id: "colorLow" },
+          { match: { id: "Healthy" }, id: "colorHealthy" },
+          { match: { id: "High" }, id: "colorHigh" },
         ]}
-        colors={{ scheme: "category10" }}
+        colors={(slice) => {
+          if (slice.id === "Low") {
+            return "rgba(0, 175, 255)";
+          } else if (slice.id === "Healthy") {
+            return "rgba(0, 128, 0)";
+          } else {
+            return "rgba(255, 0, 0 )";
+          }
+        }}
         borderWidth={1}
-        borderColor={{ from: "color", modifiers: [["darker", 0.2]] }}
+        borderColor={{ from: "color", modifiers: [["darker", 90]] }}
         radialLabelsSkipAngle={10}
         radialLabelsTextXOffset={6}
         radialLabelsTextColor={colors.grey[900]}
@@ -190,7 +193,7 @@ const PieChart = ({ isDashboard = false, hideSelect = false }) => {
             itemsSpacing: 0,
             itemWidth: 100,
             itemHeight: 18,
-            itemTextColor: "#999",
+            itemTextColor: "#000",
             itemDirection: "left-to-right",
             itemOpacity: 1,
             symbolSize: 18,
@@ -199,8 +202,22 @@ const PieChart = ({ isDashboard = false, hideSelect = false }) => {
               {
                 on: "hover",
                 style: {
-                  itemTextColor: "#000",
+                  itemOpacity: 100,
                 },
+              },
+            ],
+            items: [
+              {
+                id: "Low",
+                label: "Low",
+              },
+              {
+                id: "Healthy",
+                label: "Healthy",
+              },
+              {
+                id: "High",
+                label: "High",
               },
             ],
           },
@@ -210,4 +227,4 @@ const PieChart = ({ isDashboard = false, hideSelect = false }) => {
   );
 };
 
-export default PieChart;
+export default TimeInTarget;

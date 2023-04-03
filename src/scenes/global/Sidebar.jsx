@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext } from "react";
 import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
@@ -8,14 +8,14 @@ import fire from "../../config/fire";
 import "react-pro-sidebar/dist/css/styles.css";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import ScatterPlotOutlinedIcon from '@mui/icons-material/ScatterPlotOutlined';
-import GrainIcon from '@mui/icons-material/Grain';
-import LiveHelpIcon from '@mui/icons-material/LiveHelp';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import StackedBarChartIcon from '@mui/icons-material/StackedBarChart';
-import PieChartIcon from '@mui/icons-material/PieChart';
-import ShowChartIcon from '@mui/icons-material/ShowChart';
+import ScatterPlotOutlinedIcon from "@mui/icons-material/ScatterPlotOutlined";
+import GrainIcon from "@mui/icons-material/Grain";
+import LiveHelpIcon from "@mui/icons-material/LiveHelp";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import StackedBarChartIcon from "@mui/icons-material/StackedBarChart";
+import PieChartIcon from "@mui/icons-material/PieChart";
+import ShowChartIcon from "@mui/icons-material/ShowChart";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -44,13 +44,17 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   const handleSignOut = () => {
-    fire.auth().signOut().then(() => {
-      setUser(null); // clear user from the AuthContext
-      navigate('/');
-    }).catch((error) => {
-      setError(error.message);
-    });
-  }
+    fire
+      .auth()
+      .signOut()
+      .then(() => {
+        setUser(null); // clear user from the AuthContext
+        navigate("/");
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
+  };
 
   return (
     <Box
@@ -81,7 +85,6 @@ const Sidebar = () => {
           <MenuItem
             onClick={() => setIsCollapsed(!isCollapsed)}
             icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
-            
           >
             {!isCollapsed && (
               <Box
@@ -164,25 +167,25 @@ const Sidebar = () => {
               setSelected={setSelected}
             />
             <Item
-              title="ScatterPlot Graph"
+              title="Glucose Spike Graph"
               to="/bump"
               icon={<GrainIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
-            title="Anomaly Detection"
-            to="/graph"
-            icon={<ScatterPlotOutlinedIcon />}
-            selected={selected}
-            setSelected={setSelected}
-          />
+              title="Irregularity Detector"
+              to="/graph"
+              icon={<ScatterPlotOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
 
-             {/* SIGN OUT ICON */}
+            {/* SIGN OUT ICON */}
             <MenuItem onClick={handleSignOut} icon={<LogoutOutlinedIcon />}>
-                <Typography>Sign Out</Typography>
+              <Typography>Sign Out</Typography>
             </MenuItem>
-            </Box>
+          </Box>
         </Menu>
       </ProSidebar>
     </Box>

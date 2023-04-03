@@ -7,8 +7,7 @@ import { useState, useEffect, useCallback } from "react";
 import useAuth from "../useAuth.js";
 import { Select, MenuItem, Typography, Box, Grid } from "@mui/material";
 
-
-const LineChart = ({ isDashboard = false, hideSelect = false }) => {
+const DailyChart = ({ isDashboard = false, hideSelect = false }) => {
   const [selectedRange, setSelectedRange] = useState("24h");
   const theme = useTheme();
   const colors = token(theme.palette.mode);
@@ -94,9 +93,13 @@ const LineChart = ({ isDashboard = false, hideSelect = false }) => {
 
   const checkGlucoseReading = (glucoseReading) => {
     if (glucoseReading < 3.6) {
-      alert("Your glucose reading is low, Have some fast acting Sugar and check again soon!");
+      alert(
+        "Your glucose reading is low, Have some fast acting Sugar and check again soon!"
+      );
     } else if (glucoseReading > 15) {
-      alert("Your glucose reading is high. Check for Ketones and take an adjustment to correct the glucose reading!");
+      alert(
+        "Your glucose reading is high. Check for Ketones and take an adjustment to correct the glucose reading!"
+      );
     }
   };
 
@@ -152,7 +155,7 @@ const LineChart = ({ isDashboard = false, hideSelect = false }) => {
   const getXScaleMinMax = () => {
     let min, max;
     const latestReadingTime = get_data()[0]?.data.slice(-1)[0]?.x;
-  
+
     switch (selectedRange) {
       case "24h":
         min = moment().subtract(24, "hours").valueOf();
@@ -173,7 +176,6 @@ const LineChart = ({ isDashboard = false, hideSelect = false }) => {
     }
     return { min, max };
   };
-  
 
   const CustomLayer = ({ yScale, xScale }) => {
     const endX = xScale(getXScaleMinMax().max);
@@ -226,7 +228,6 @@ const LineChart = ({ isDashboard = false, hideSelect = false }) => {
         key={selectedRange}
         // Rendering the chart only if there is data, not null.....
         data={get_data()}
- 
         theme={{
           axis: {
             domain: {
@@ -373,4 +374,4 @@ const LineChart = ({ isDashboard = false, hideSelect = false }) => {
   );
 };
 
-export default LineChart;
+export default DailyChart;

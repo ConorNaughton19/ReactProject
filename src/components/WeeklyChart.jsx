@@ -1,4 +1,3 @@
-//import { useTheme } from "@mui/material";
 import { useTheme, Typography, Box, Grid } from "@mui/material";
 import React from "react";
 import { useState, useEffect } from "react";
@@ -13,24 +12,27 @@ const formatDate = (timestamp) => {
   return d3.timeFormat("%a")(date);
 };
 
-
 const getCurrentWeekRange = () => {
   const today = new Date();
-  const startOfWeek = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - today.getUTCDay() + 1));
+  const startOfWeek = new Date(
+    Date.UTC(
+      today.getUTCFullYear(),
+      today.getUTCMonth(),
+      today.getUTCDate() - today.getUTCDay() + 1
+    )
+  );
   const endOfWeek = new Date(startOfWeek);
   endOfWeek.setUTCDate(startOfWeek.getUTCDate() + 6);
 
   return { startOfWeek, endOfWeek };
 };
 
-
-
 const formatDateRange = (start, end) => {
   const format = d3.timeFormat("%B %d");
   return `${format(start)} - ${format(end)}`;
 };
 
-const BarChart = ({ isDashboard = false, hideSelect = false }) => {
+const WeeklyChart = ({ isDashboard = false, hideSelect = false }) => {
   const theme = useTheme();
   const colors = token(theme.palette.mode);
   const [data, setData] = useState([]);
@@ -43,7 +45,6 @@ const BarChart = ({ isDashboard = false, hideSelect = false }) => {
       const dbRef = db.ref(`users/${currentUser.uid}/mockLineData/0/data`);
       dbRef.on("value", (snapshot) => {
         const rawData = snapshot.val();
-       // console.log("Raw data:", rawData); // Add this line
         const processedData = processData(rawData);
         setData(processedData);
       });
@@ -55,17 +56,14 @@ const BarChart = ({ isDashboard = false, hideSelect = false }) => {
   const processData = (rawData) => {
     const dataByDay = {};
     const { startOfWeek, endOfWeek } = getCurrentWeekRange();
-  
+
     for (const key in rawData) {
       const entry = rawData[key];
-      //console.log("Entry:", entry); // Add this line
       const entryDate = new Date(entry.x);
-      //console.log("Entry date:", entryDate); // Add this line
-
       // Filter data by date range
       if (entryDate >= startOfWeek && entryDate <= endOfWeek) {
         const day = formatDate(entry.x);
-  
+
         if (!dataByDay[day]) {
           dataByDay[day] = {
             DAY: day,
@@ -75,21 +73,19 @@ const BarChart = ({ isDashboard = false, hideSelect = false }) => {
             totalCount: 0,
           };
         }
-  
-        if (entry.y < 6) {
+
+        if (entry.y < 3.5) {
           dataByDay[day].LOW++;
-        } else if (entry.y >= 6 && entry.y <= 8) {
+        } else if (entry.y >= 3.6 && entry.y <= 8.3) {
           dataByDay[day].HEALTHY++;
         } else {
           dataByDay[day].HIGH++;
         }
-      
         dataByDay[day].totalCount++;
       }
     }
-  
+
     // Calculate percentages
-    //console.log("Data by day before percentage calculation:", dataByDay); // Add this line
     for (const day in dataByDay) {
       dataByDay[day].LOW =
         (dataByDay[day].LOW / dataByDay[day].totalCount) * 100;
@@ -98,7 +94,6 @@ const BarChart = ({ isDashboard = false, hideSelect = false }) => {
       dataByDay[day].HIGH =
         (dataByDay[day].HIGH / dataByDay[day].totalCount) * 100;
     }
-    console.log("Processed data:", Object.values(dataByDay)); // Add this line
     return Object.values(dataByDay);
   };
 
@@ -126,44 +121,45 @@ const BarChart = ({ isDashboard = false, hideSelect = false }) => {
   };
 
   const { maxHighDay, maxLowDay } = getMinMaxDays(data);
-  
-
 
   return (
     <>
-    <div>
-      {!hideSelect && (
-        
-      <Box mb={3}>
-        <Typography variant="h6">
-  <strong>Date range:</strong> {dateRange}
-</Typography>
-        <Grid container spacing={2}>
-          <Grid item>
-            <Typography variant="h6">
-              <strong>Day with most High readings:</strong>
-            </Typography>
-            <Typography variant="subtitle1" color="textSecondary">
-              {maxHighDay}
-            </Typography>
-          </Grid>
-          <Grid item>
-            <Typography variant="h6">
-              <strong>Day with most Low readings:</strong>
-            </Typography>
-            <Typography variant="subtitle1" color="textSecondary">
-              {maxLowDay}
-            </Typography>
-          </Grid>
-        </Grid>
-      </Box>
-      )
-      }
+      <div>
+        {!hideSelect && (
+          <Box mb={3}>
+            <Box mt={5}>
+              <Typography variant="h5">
+                <strong>Date range:</strong>
+              </Typography>
+              <Typography variant="subtitle1" color="textSecondary">
+                {dateRange}
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item>
+                  <Typography variant="h6">
+                    <strong>Day with most High readings:</strong>
+                  </Typography>
+                  <Typography variant="subtitle1" color="textSecondary">
+                    {maxHighDay}
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant="h6">
+                    <strong>Day with most Low readings:</strong>
+                  </Typography>
+                  <Typography variant="subtitle1" color="textSecondary">
+                    {maxLowDay}
+                  </Typography>
+                </Grid>
+              </Grid>
+            </Box>
+          </Box>
+        )}
       </div>
+
       <ResponsiveBar
         data={data}
         theme={{
-          // added
           axis: {
             domain: {
               line: {
@@ -197,30 +193,52 @@ const BarChart = ({ isDashboard = false, hideSelect = false }) => {
         padding={0.3}
         valueScale={{ type: "linear" }}
         indexScale={{ type: "band", round: true }}
-        colors={{ scheme: "nivo" }}
+        colors={(bar) => {
+          if (bar.id === "LOW") {
+            return "rgba(0, 175, 255)";
+          } else if (bar.id === "HEALTHY") {
+            return "rgba(0, 128, 0)";
+          } else {
+            return "rgba(255, 0, 0 )";
+          }
+        }}
         defs={[
           {
-            id: "dots",
+            id: "colorLow",
             type: "patternDots",
-            background: "inherit",
-            color: "#38bcb2",
-            size: 4,
-            padding: 1,
+            background: "rgba(0, 175, 255, 0.5)",
+            color: "rgba(0, 175, 255, 0.5)",
+            size: 1,
+            padding: 0,
             stagger: true,
           },
           {
-            id: "lines",
-            type: "patternLines",
-            background: "inherit",
-            color: "#eed312",
-            rotation: -45,
-            lineWidth: 6,
-            spacing: 10,
+            id: "colorHealthy",
+            type: "patternDots",
+            background: "rgba(0, 128, 0, 0.5)",
+            color: "rgba(0, 128, 0, 0.5)",
+            size: 1,
+            padding: 0,
+            stagger: true,
           },
+          {
+            id: "colorHigh",
+            type: "patternDots",
+            background: "rgba(255, 0, 0, 0.5)",
+            color: "rgba(255, 0, 0, 0.5)",
+            size: 1,
+            padding: 0,
+            stagger: true,
+          },
+        ]}
+        fill={[
+          { match: { id: "LOW" }, id: "colorLow" },
+          { match: { id: "HEALTHY" }, id: "colorHealthy" },
+          { match: { id: "HIGH" }, id: "colorHigh" },
         ]}
         borderColor={{
           from: "color",
-          modifiers: [["darker", "1.6"]],
+          modifiers: [["darker", "0.2"]],
         }}
         axisTop={null}
         axisRight={null}
@@ -228,7 +246,7 @@ const BarChart = ({ isDashboard = false, hideSelect = false }) => {
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: isDashboard ? undefined : "DAY OF THE WEEK", // changed
+          legend: isDashboard ? undefined : "DAY OF THE WEEK",
           legendPosition: "middle",
           legendOffset: 32,
         }}
@@ -236,17 +254,17 @@ const BarChart = ({ isDashboard = false, hideSelect = false }) => {
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          legend: isDashboard ? undefined : "PERCENTAGE", // changed
+          legend: isDashboard ? undefined : "PERCENTAGE",
           legendPosition: "middle",
           legendOffset: -40,
         }}
-        maxValue={100} // Set the max value for the Y-axis
+        maxValue={100}
         enableLabel={false}
         labelSkipWidth={12}
         labelSkipHeight={12}
         labelTextColor={{
           from: "color",
-          modifiers: [["darker", 1.9]],
+          modifiers: [["darker", 0.2]],
         }}
         legends={[
           {
@@ -270,19 +288,32 @@ const BarChart = ({ isDashboard = false, hideSelect = false }) => {
                 },
               },
             ],
+            items: [
+              {
+                id: "LOW",
+                label: "Low",
+                fill: "rgba(0, 175, 255, 0.5)",
+              },
+              {
+                id: "HEALTHY",
+                label: "Healthy",
+                fill: "rgba(0, 128, 0, 0.5)",
+              },
+              {
+                id: "HIGH",
+                label: "High",
+                fill: "rgba(255, 0, 0, 0.5)",
+              },
+            ],
           },
         ]}
         role="application"
         barAriaLabel={function (e) {
-          return (
-            e.id + ": " + e.formattedValue + " in country: " + e.indexValue
-          );
+          return e.id + ": " + e.formattedValue + "  " + e.indexValue;
         }}
       />
-      {console.log("Data passed to ResponsiveBar:", data)} {/* Add this line */}
-
     </>
   );
 };
 
-export default BarChart;
+export default WeeklyChart;
