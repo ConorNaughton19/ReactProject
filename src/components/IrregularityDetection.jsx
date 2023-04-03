@@ -11,8 +11,8 @@ import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import { Grid, Paper, Typography } from "@mui/material";
 
-const Graph = ({ isDashboard = false, hideSelect = false }) => {
-  const [selectedRange, setSelectedRange] = useState("24h");
+const IrregularityDetection = ({ isDashboard = false, hideSelect = false }) => {
+  const [selectedRange, setSelectedRange] = useState("7d");
   const theme = useTheme();
   const colors = token(theme.palette.mode);
   const [data, setData] = useState([]);
@@ -21,27 +21,10 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
   const [showErrorCircles, setShowErrorCircles] = useState(false);
   const [lineOfBestFitData, setLineOfBestFitData] = useState([]);
 
-  useEffect(() => {
-    if (currentUser) {
-      const dbRef = db.ref(`users/${currentUser.uid}/mockLineData/0/data`);
-      dbRef.on("value", (snapshot) => {
-        const lineData = snapshot.val();
-        if (lineData) {
-          setData([{ id: "glucose", data: Object.values(lineData) }]);
-        }
-      });
-      return () => dbRef.off();
-    }
-  }, [currentUser]);
-
   const filterData = useCallback(
     (data) => {
       let rangeStart, rangeEnd;
       switch (selectedRange) {
-        case "24h":
-          rangeStart = moment().startOf("day").valueOf(); // Set to midnight
-          rangeEnd = moment().endOf("day").valueOf(); // Set to 23:59
-          break;
         case "7d":
           rangeStart = moment().subtract(7, "days").startOf("day").valueOf(); // Set to midnight 7 days ago
           rangeEnd = moment().endOf("day").valueOf(); // Set to 23:59
@@ -51,7 +34,7 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
           rangeEnd = moment().endOf("day").valueOf(); // Set to 23:59
           break;
         default:
-          rangeStart = moment().startOf("day").valueOf();
+          rangeStart = moment().subtract(7, "days").startOf("day").valueOf(); // Set to midnight 7 days ago
           rangeEnd = moment().endOf("day").valueOf();
           break;
       }
@@ -63,13 +46,10 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
     [selectedRange]
   );
 
-  // New function to compute the line of best fit
   const computeLineOfBestFit = useCallback((data) => {
     const result = regression.linear(data.map(({ x, y }) => [x, y]));
     return result.points.map(([x, y], i) => ({ x: data[i].x, y })); // Use original x values from the data
   }, []);
-  
-  
 
   useEffect(() => {
     if (data.length) {
@@ -80,53 +60,23 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
     }
   }, [data, filterData, computeLineOfBestFit]);
 
-  const handleAddData = () => {
-    const glucoseReading = parseFloat(prompt("Enter glucose reading:"));
-    if (isNaN(glucoseReading)) {
-      alert("Please enter a valid number.");
-      return;
-    }
-
-    checkGlucoseReading(glucoseReading);
-    const timestamp = Date.now();
-    db.ref(`users/${currentUser.uid}/mockLineData/0/data/${timestamp}`).set({
-      x: timestamp,
-      y: glucoseReading,
-    });
-  };
-
-  const checkGlucoseReading = (glucoseReading) => {
-    if (glucoseReading < 3.6) {
-      alert("Your glucose reading is low. Please check again soon.");
-    } else if (glucoseReading > 15) {
-      alert("Your glucose reading is high. Please check again soon.");
-    }
-  };
-
-  const getTimeWithOffset = (time) => {
-    const date = new Date(time);
-    const offset = date.getTimezoneOffset() * 60 * 1000;
-    return new Date(date.getTime() - offset);
-  };
-
   const get_data = useCallback(() => {
     if (!data.length) return [];
-  
+
     const data_points = data[0].data;
     const sorted_data = data_points.sort((a, b) => a.x - b.x);
-  
+
     const filtered_data = filterData([{ id: "glucose", data: sorted_data }]);
-  
+
     const formatted_data =
       filtered_data &&
       filtered_data[0].data.map((dp) => ({
         x: dp.x,
         y: dp.y,
       }));
-  
+
     return [{ id: "glucose", data: formatted_data }];
   }, [data, filterData]);
-  
 
   useEffect(() => {
     const rangeInMs = {
@@ -155,8 +105,9 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
 
   const getXScaleMinMax = () => {
     let min, max;
-    const latestReadingTime = get_data()[0]?.data.slice(-1)[0]?.x;
-  
+    const latestReadingTime =
+      get_data()[0]?.data[get_data()[0]?.data.length - 1]?.x;
+
     switch (selectedRange) {
       case "24h":
         min = moment().subtract(24, "hours").valueOf();
@@ -177,7 +128,6 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
     }
     return { min, max };
   };
-  
 
   const CustomLayer = ({ yScale, xScale }) => {
     const endX = xScale(getXScaleMinMax().max);
@@ -187,13 +137,13 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
         y={yScale(8)}
         width={endX}
         height={yScale(4.5) - yScale(8)}
-        fill="yellow"
-        opacity={0.3}
+        fill="lightgreen"
+        opacity={0.4}
       />
     );
   };
 
-  // New custom layer to draw the line of best fit
+ //custom layer to draw the line of best fit
   const RegressionLineLayer = ({ xScale, yScale }) => {
     if (!showRegressionLine || !lineOfBestFitData.length) {
       return null;
@@ -227,7 +177,7 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
     ) {
       return null;
     }
-  
+
     const getErrorCategory = (error) => {
       if (error < 1) {
         return "normal";
@@ -237,7 +187,7 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
         return "significant";
       }
     };
-  
+
     const getCircleColor = (category) => {
       switch (category) {
         case "normal":
@@ -250,7 +200,7 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
           return "green";
       }
     };
-  
+
     return (
       <g>
         {data[0].data.map((point, index) => {
@@ -258,13 +208,13 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
           const error = Math.abs(point.y - predictedPoint.y);
           const errorCategory = getErrorCategory(error);
           const circleColor = getCircleColor(errorCategory);
-  
+
           return (
             <circle
               key={index}
               cx={xScale(point.x)}
               cy={yScale(point.y)}
-              r={error * 5} // You can adjust the multiplier to control the size of the circles
+              r={error * 5} //control error circle size
               fill={circleColor}
               opacity="0.5"
             />
@@ -274,17 +224,19 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
     );
   };
 
-
   const countErrorCircles = () => {
-    if (!lineOfBestFitData.length || lineOfBestFitData.length !== data[0].data.length) {
+    if (
+      !lineOfBestFitData.length ||
+      lineOfBestFitData.length !== data[0].data.length
+    ) {
       return { significant: 0, moderate: 0, normal: 0 };
     }
-  
+
     const errors = data[0].data.map((point, index) => {
       const predictedPoint = lineOfBestFitData[index];
       return Math.abs(point.y - predictedPoint.y);
     });
-  
+
     const errorCategories = errors.map((error) => {
       if (error < 1.5) {
         return "normal";
@@ -294,7 +246,7 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
         return "significant";
       }
     });
-  
+
     const counts = errorCategories.reduce(
       (acc, category) => {
         acc[category]++;
@@ -302,44 +254,50 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
       },
       { significant: 0, moderate: 0, normal: 0 }
     );
-  
+
     return counts;
   };
-  
-  const errorCircleCounts = countErrorCircles();
 
+  const errorCircleCounts = countErrorCircles();
 
   return (
     <>
-
-<Paper elevation={2} style={{ padding: '16px', marginBottom: '16px', display: 'inline-flex' }}>
-      <Grid container spacing={2}>
-        <Grid item>
-          <Typography variant="h6" component="span">
-            Significant Events: 
-          </Typography>
-          <Typography variant="body1" component="span">
-            {errorCircleCounts.significant}
-          </Typography>
+      <Paper
+        elevation={2}
+        style={{
+          padding: "16px",
+          marginBottom: "16px",
+          marginTop: "16px",
+          display: "inline-flex",
+        }}
+      >
+        <Grid container spacing={2}>
+          <Grid item>
+            <Typography variant="h6" component="span">
+              Significant Events:
+            </Typography>
+            <Typography variant="body1" component="span">
+              {errorCircleCounts.significant}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="h6" component="span">
+              Moderate Events:
+            </Typography>
+            <Typography variant="body1" component="span">
+              {errorCircleCounts.moderate}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="h6" component="span">
+              Normal:
+            </Typography>
+            <Typography variant="body1" component="span">
+              {errorCircleCounts.normal}
+            </Typography>
+          </Grid>
         </Grid>
-        <Grid item>
-          <Typography variant="h6" component="span">
-            Moderate Events: 
-          </Typography>
-          <Typography variant="body1" component="span">
-            {errorCircleCounts.moderate}
-          </Typography>
-        </Grid>
-        <Grid item>
-          <Typography variant="h6" component="span">
-            Normal: 
-          </Typography>
-          <Typography variant="body1" component="span">
-            {errorCircleCounts.normal}
-          </Typography>
-        </Grid>
-      </Grid>
-    </Paper>
+      </Paper>
 
       <Box mb={2}>
         <ToggleButtonGroup
@@ -352,12 +310,12 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
             setShowRegressionLine(newVal.includes("showRegressionLine"));
             setShowErrorCircles(newVal.includes("showErrorCircles"));
           }}
-      >
+        >
           <ToggleButton value="showRegressionLine">
-            Show Regression Line
+            Show Line of Best Fit
           </ToggleButton>
           <ToggleButton value="showErrorCircles">
-            Show Error Circles
+            Show Irregular Readings
           </ToggleButton>
         </ToggleButtonGroup>
       </Box>
@@ -380,7 +338,7 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
       )}
 
       <ResponsiveLine
-        key={selectedRange} // Add this line
+        key={selectedRange} 
         // Render the chart only if there is data
         data={get_data()}
         theme={{
@@ -417,7 +375,6 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
             },
           },
         }}
-        
         colors={isDashboard ? [colors.primary[500]] : ["black"]}
         margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
         xScale={{
@@ -442,7 +399,6 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
           reverse: false,
         }}
         yFormat=" >-.2f"
-        //curve="catmullRom"
         axisTop={null}
         axisRight={null}
         axisBottom={{
@@ -525,7 +481,7 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
           "legends",
           CustomLayer,
           ErrorCirclesLayer,
-          RegressionLineLayer, // Add the new custom layer
+          RegressionLineLayer, 
           (props) => (
             <RegressionLineLayer
               {...props}
@@ -535,9 +491,8 @@ const Graph = ({ isDashboard = false, hideSelect = false }) => {
           ),
         ]}
       />
-      <button onClick={handleAddData}>Add Data</button>
     </>
   );
 };
 
-export default Graph;
+export default IrregularityDetection;

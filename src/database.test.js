@@ -1,10 +1,8 @@
-// v9 compat packages are API compatible with v8 code
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
-import "firebase/compat/firestore";
 import "firebase/compat/database";
 
-var firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyAD1BbG_x1oR8LzhjcZioLaiEn4ULLpGc4",
   authDomain: "final-year-project-datab-3d5d4.firebaseapp.com",
   projectId: "final-year-project-datab-3d5d4",
@@ -14,10 +12,15 @@ var firebaseConfig = {
   measurementId: "G-FRQ87R3MY2",
 };
 
-const fire = firebase.initializeApp(firebaseConfig);
-export const db = fire.database(
-  "https://final-year-project-datab-3d5d4-default-rtdb.europe-west1.firebasedatabase.app"
-);
-export const auth = fire.auth();
+describe("Firebase config", () => {
+  test("initializes the Firebase app", () => {
+    const app = firebase.initializeApp(firebaseConfig);
+    expect(app).toBeDefined();
+  });
 
-export default fire;
+  test("has a working Firebase database object", async () => {
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = app.database();
+    expect(db).toBeDefined();
+  });
+});

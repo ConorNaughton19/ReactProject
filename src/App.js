@@ -4,15 +4,15 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import Sidebar from "./scenes/global/Sidebar";
 import Dashboard from "./scenes/dashboard";
 import LoginPage from "./LoginPage";
-import Bar from "./scenes/bar";
-import Line from "./scenes/line";
-import Pie from "./scenes/pie";
-import Bump from "./scenes/bump";
-import FAQ from "./scenes/faq";
+import Bar from "./scenes/WeeklyChart";
+import Line from "./scenes/DailyGraph";
+import Pie from "./scenes/TimeInTarget";
+import Bump from "./scenes/EventSpotterGraph";
+import FAQ from "./scenes/InformationPage";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { useMode } from "./theme";
-import { AuthProvider } from './AuthContext';
-import Graph from './scenes/graph';
+import { AuthProvider } from "./AuthContext";
+import Graph from "./scenes/IrregularityDetection";
 import UserData from "./UserData";
 
 function App() {
@@ -44,8 +44,8 @@ function App() {
               <Route path="/line" element={<Line />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/bump" element={<Bump />} />
-              <Route path="/graph" element={< Graph />} />
-              <Route path="/userdata" element={< UserData />} />
+              <Route path="/graph" element={<Graph />} />
+              <Route path="/userdata" element={<UserData />} />
             </Routes>
           </main>
         </div>

@@ -8,17 +8,14 @@ const ProgressCircle = () => {
   const { currentUser } = useAuth();
   const [average, setAverage] = useState(0);
 
-  const filterData = useCallback(
-    (data) => {
-      const rangeStart = moment().startOf("day").valueOf(); // Set to midnight
-      const rangeEnd = moment().endOf("day").valueOf(); // Set to 23:59
-      const filteredData = data[0].data.filter(
-        (point) => point.x >= rangeStart && point.x <= rangeEnd
-      );
-      return [{ id: "glucose", data: filteredData }];
-    },
-    []
-  );
+  const filterData = useCallback((data) => {
+    const rangeStart = moment().startOf("day").valueOf(); // Set to midnight
+    const rangeEnd = moment().endOf("day").valueOf(); // Set to 23:59
+    const filteredData = data[0].data.filter(
+      (point) => point.x >= rangeStart && point.x <= rangeEnd
+    );
+    return [{ id: "glucose", data: filteredData }];
+  }, []);
 
   useEffect(() => {
     if (currentUser) {
@@ -26,8 +23,13 @@ const ProgressCircle = () => {
       dbRef.on("value", (snapshot) => {
         const lineData = snapshot.val();
         if (lineData) {
-          const filteredData = filterData([{ id: "glucose", data: Object.values(lineData) }]);
-          const total = filteredData[0].data.reduce((sum, point) => sum + point.y, 0);
+          const filteredData = filterData([
+            { id: "glucose", data: Object.values(lineData) },
+          ]);
+          const total = filteredData[0].data.reduce(
+            (sum, point) => sum + point.y,
+            0
+          );
           const count = filteredData[0].data.length;
           setAverage(Number((total / count).toFixed(2)));
         }
@@ -41,8 +43,7 @@ const ProgressCircle = () => {
       <Typography variant="h3" color="textSecondary">
         {average} mmol
       </Typography>
-      <Typography variant="subtitle2" color="textSecondary">
-      </Typography>
+      <Typography variant="subtitle2" color="textSecondary"></Typography>
     </Box>
   );
 };
